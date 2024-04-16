@@ -7,6 +7,7 @@ from maltypes import (
     MalQuasiQuote,
     MalQuote,
     MalSpliceUnquote,
+    MalSymbol,
     MalVector,
     MalUnquote
 )
@@ -22,7 +23,7 @@ class ParseError(Exception):
 
 
 class Reader:
-    def __init__(self, tokens: tuple[str]):
+    def __init__(self, tokens):
         self._tokens = tokens
         self._position = 0
 
@@ -48,7 +49,7 @@ def read_str(arg: str):
         return str(e)
 
 
-def tokenize(arg: str) -> tuple[str]:
+def tokenize(arg: str):
     return __TOKENIZER_RE.findall(arg)
 
 
@@ -91,7 +92,7 @@ def read_list(reader: Reader):
         case '{':
             result = MalMap()
         case _:
-            raise ParseError("Expected collection start")
+            raise ParseError("Expected collection start", token=tok)
 
     while (True):
         try:
@@ -119,4 +120,4 @@ def read_atom(reader: Reader):
     with suppress(ValueError):
         number = float(tok)
         return number
-    return tok
+    return MalSymbol(tok)
